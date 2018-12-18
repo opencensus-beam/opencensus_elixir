@@ -1,2 +1,0 @@
-defmodule Opencensus do
-end
