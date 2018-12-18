@@ -16,7 +16,7 @@ defmodule OpencensusElixir.MixProject do
         docs: :docs,
         "inchci.add": :docs,
         "inch.report": :docs
-      ],
+      ]
     ]
   end
 

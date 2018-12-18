@@ -7,12 +7,13 @@ defmodule Opencensus.Trace do
     function = format_function(__CALLER__.function)
 
     quote do
-      attributes = Map.merge(unquote(attributes), %{
-        line: unquote(line),
-        module: unquote(module),
-        file: unquote(file),
-        function: unquote(function)
-      })
+      attributes =
+        Map.merge(unquote(attributes), %{
+          line: unquote(line),
+          module: unquote(module),
+          file: unquote(file),
+          function: unquote(function)
+        })
 
       parent_span_ctx = :ocp.current_span_ctx()
       new_span_ctx = :oc_trace.start_span(unquote(label), parent_span_ctx, unquote(attributes))
