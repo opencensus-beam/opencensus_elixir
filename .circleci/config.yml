@@ -1,0 +1,101 @@
+# Elixir CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-elixir/ for more details
+version: 2.1
+
+commands:
+  fetch_deps:
+    description: "Fetch deps, build, and cache them"
+    parameters:
+      elixir_version:
+        type: string
+        default: "any"
+    steps:
+      - restore_cache:
+          keys:
+            - deps-v1-<<parameters.elixir_version>>-{{ checksum "mix.lock" }}-{{ .Branch }}-{{ .Revision }}
+            - deps-v1-<<parameters.elixir_version>>-{{ checksum "mix.lock" }}-{{ .Branch }}-
+            - deps-v1-<<parameters.elixir_version>>-{{ checksum "mix.lock" }}-
+            - deps-v1-<<parameters.elixir_version>>-
+      - run: mix do local.hex --force, local.rebar --force
+      - run: mix do deps.get, deps.compile
+      - save_cache:
+          key: deps-v1-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - "deps"
+            - "_build"
+
+jobs:
+  test:
+    parameters:
+      elixir_version:
+        type: string
+        description: Elixir version to test against to
+    docker:
+      - image: elixir:<<parameters.elixir_version>>
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - fetch_deps:
+          elixir_version: <<parameters.elixir_version>>
+      - run: mkdir -p reports/exunit
+      - run: mix coveralls.json
+      - run: bash <(curl -s https://codecov.io/bash)
+      - store_test_results:
+          path: reports
+
+  dialyzer:
+    docker:
+      - image: elixir:1.7
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - fetch_deps
+      - restore_cache:
+          keys:
+            - dialyzer-v1-{{ checksum "mix.lock" }}
+            - dialyzer-v1
+      - run: mix dialyzer --plt
+      - save_cache:
+          key: dialyzer-v1-{{ checksum "mix.lock" }}
+          paths:
+            - "_build"
+      - run: mix dialyzer --halt-exit-status
+
+  format:
+    docker:
+      - image: elixir:1.7
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - fetch_deps
+      - run: mix format --check-formatted
+
+  inchci:
+    docker:
+      # Elixir 1.6 as InchCI do not yet work with 1.7
+      - image: elixir:1.6
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - fetch_deps
+      - run: mix inch.report
+
+workflows:
+  version: 2
+  lints:
+    jobs:
+      - dialyzer
+      - format
+      - inchci
+  testing:
+    jobs:
+      - test:
+          name: "Elixir 1.7"
+          elixir_version: "1.7"
+      - test:
+          name: "Elixir 1.6"
+          elixir_version: "1.6"
+      - test:
+          name: "Elixir 1.5"
+          elixir_version: "1.5"
