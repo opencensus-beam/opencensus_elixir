@@ -6,12 +6,11 @@ defmodule OpencensusElixir.MixProject do
       app: :opencensus_elixir,
       version: "0.1.0",
       elixir: "~> 1.5",
+      elixirc_paths: paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       aliases: aliases(),
-      description: description(),
-      package: package(),
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.html": :test,
@@ -25,10 +24,11 @@ defmodule OpencensusElixir.MixProject do
 
   # Run "mix help compile.app" to learn about applications.
   def application do
-    [
-      extra_applications: [:logger]
-    ]
+    [extra_applications: [:logger]]
   end
+
+  defp paths(:test), do: ~w[lib/ test/support/]
+  defp paths(_), do: ~w[lib/]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -41,7 +41,8 @@ defmodule OpencensusElixir.MixProject do
 
       # Testing
       {:excoveralls, "~> 0.10.3", only: [:test]},
-      {:dialyxir, ">= 0.0.0", runtime: false, only: [:dev, :test]},
+      {:stream_data, "~> 0.4.2", only: [:test]},
+      {:dialyxir, "~> 1.0.0-rc.4", runtime: false, only: [:dev, :test]},
       {:junit_formatter, ">= 0.0.0", only: [:test]}
     ]
   end
@@ -49,22 +50,6 @@ defmodule OpencensusElixir.MixProject do
   defp aliases do
     [
       test: "test --no-start"
-    ]
-  end
-
-  defp description() do
-    "Elixir library for OpenCensus tracing"
-  end
-
-  defp package() do
-    [
-      licenses: ["Apache 2.0"],
-      links: %{
-        "GitHub" => "https://github.com/opencensus-beam/opencensus_elixir",
-        "OpenCensus" => "https://opencensus.io",
-        "OpenCensus Erlang" => "https://github.com/census-instrumentation/opencensus-erlang",
-        "OpenCensus BEAM" => "https://github.com/opencensus-beam"
-      }
     ]
   end
 end
