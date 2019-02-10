@@ -29,10 +29,59 @@ defmodule OpencensusTest do
     :application.ensure_all_started(:opencensus)
     :application.ensure_all_started(:opencensus_elixir)
 
-    with_child_span "child_span", default_attributes(%{"attr-1" => "value-1"}) do
+    with_child_span "child_span" do
+      :do_something
+    end
+
+    assert_receive {:attributes, %{}}, 1_000
+
+    with_child_span "child_span", %{"attr-1" => "value-1"} do
+      :do_something
+    end
+
+    assert_receive {:attributes, %{"attr-1" => "value-1"}}, 1_000
+
+    with_child_span "child_span", [:module, %{"attr-1" => "value-1"}] do
       :do_something
     end
 
     assert_receive {:attributes, %{"attr-1" => "value-1", :module => OpencensusTest}}, 1_000
+
+    with_child_span "child_span", [%{"attr-1" => "value-1"}, %{"attr-2" => "value-2"}] do
+      :do_something
+    end
+
+    assert_receive {:attributes, %{"attr-1" => "value-1", "attr-2" => "value-2"}}, 1_000
+
+    custom_attrs = %{"attr-1" => "value-1"}
+
+    with_child_span "child_span", [:module, custom_attrs] do
+      :do_something
+    end
+
+    assert_receive {:attributes, %{"attr-1" => "value-1", :module => OpencensusTest}}, 1_000
+
+    custom_attrs1 = %{"attr-1" => "value-1"}
+    custom_attrs2 = %{"attr-2" => "value-2"}
+
+    with_child_span "child_span", [
+      :module,
+      %{"attr" => "value"},
+      custom_attrs1,
+      :line,
+      custom_attrs2
+    ] do
+      :do_something
+    end
+
+    assert_receive {:attributes,
+                    %{
+                      "attr" => "value",
+                      "attr-1" => "value-1",
+                      "attr-2" => "value-2",
+                      :module => OpencensusTest,
+                      :line => _
+                    }},
+                   1_000
   end
 end
