@@ -9,6 +9,7 @@ defmodule OpencensusElixir.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
+      aliases: aliases(),
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.html": :test,
@@ -40,6 +41,12 @@ defmodule OpencensusElixir.MixProject do
       {:excoveralls, "~> 0.10.3", only: [:test]},
       {:dialyxir, ">= 0.0.0", runtime: false, only: [:dev, :test]},
       {:junit_formatter, ">= 0.0.0", only: [:test]}
+    ]
+  end
+
+  defp aliases do
+    [
+      test: "test --no-start"
     ]
   end
 end
