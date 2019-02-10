@@ -6,6 +6,7 @@ defmodule OpencensusElixir.MixProject do
       app: :opencensus_elixir,
       version: "0.1.0",
       elixir: "~> 1.5",
+      elixirc_paths: paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
@@ -23,10 +24,11 @@ defmodule OpencensusElixir.MixProject do
 
   # Run "mix help compile.app" to learn about applications.
   def application do
-    [
-      extra_applications: [:logger]
-    ]
+    [extra_applications: [:logger]]
   end
+
+  defp paths(:test), do: ~w[lib/ test/support/]
+  defp paths(_), do: ~w[lib/]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -39,7 +41,8 @@ defmodule OpencensusElixir.MixProject do
 
       # Testing
       {:excoveralls, "~> 0.10.3", only: [:test]},
-      {:dialyxir, ">= 0.0.0", runtime: false, only: [:dev, :test]},
+      {:stream_data, "~> 0.4.2", only: [:test]},
+      {:dialyxir, "~> 1.0.0-rc.4", runtime: false, only: [:dev, :test]},
       {:junit_formatter, ">= 0.0.0", only: [:test]}
     ]
   end
