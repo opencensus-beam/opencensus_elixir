@@ -16,7 +16,6 @@ defmodule OpencensusElixir.MixProject do
         coveralls: :test,
         "coveralls.html": :test,
         "coveralls.json": :test,
-        docs: :docs,
         "inchci.add": :docs,
         "inch.report": :docs
       ]
@@ -36,8 +35,8 @@ defmodule OpencensusElixir.MixProject do
       {:opencensus, "~> 0.7.0"},
 
       # Documentation
-      {:ex_doc, ">= 0.0.0", only: [:docs]},
-      {:inch_ex, "~> 1.0", only: [:docs]},
+      {:ex_doc, ">= 0.0.0", only: [:dev]},
+      {:inch_ex, "~> 1.0", only: [:dev]},
 
       # Testing
       {:excoveralls, "~> 0.10.3", only: [:test]},
