@@ -33,7 +33,7 @@ defmodule Opencensus.Trace do
     end
   end
 
-  def compute_attributes(attributes, default_attributes) when is_list(attributes) do
+  defp compute_attributes(attributes, default_attributes) when is_list(attributes) do
     {atoms, custom_attributes} = Enum.split_with(attributes, &is_atom/1)
 
     default_attributes = compute_default_attributes(atoms, default_attributes)
@@ -69,11 +69,11 @@ defmodule Opencensus.Trace do
     end
   end
 
-  def compute_attributes(attributes, _default_attributes) do
+  defp compute_attributes(attributes, _default_attributes) do
     attributes
   end
 
-  def compute_default_attributes(atoms, default_attributes) do
+  defp compute_default_attributes(atoms, default_attributes) do
     List.foldl(atoms, %{}, fn
       :default, _acc ->
         default_attributes
