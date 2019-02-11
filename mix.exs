@@ -10,6 +10,8 @@ defmodule OpencensusElixir.MixProject do
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       aliases: aliases(),
+      description: description(),
+      package: package(),
       preferred_cli_env: [
         coveralls: :test,
         "coveralls.html": :test,
@@ -47,6 +49,22 @@ defmodule OpencensusElixir.MixProject do
   defp aliases do
     [
       test: "test --no-start"
+    ]
+  end
+
+  defp description() do
+    "Elixir library for OpenCensus tracing"
+  end
+
+  defp package() do
+    [
+      licenses: ["Apache 2.0"],
+      links: %{
+        "GitHub" => "https://github.com/opencensus-beam/opencensus_elixir",
+        "OpenCensus" => "https://opencensus.io",
+        "OpenCensus Erlang" => "https://github.com/census-instrumentation/opencensus-erlang",
+        "OpenCensus BEAM" => "https://github.com/opencensus-beam"
+      }
     ]
   end
 end
