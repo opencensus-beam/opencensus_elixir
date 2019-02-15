@@ -24,7 +24,7 @@ defmodule OpencensusTest do
   test "verify attributes", _state do
     :application.load(:opencensus)
     :application.set_env(:opencensus, :send_interval_ms, 1)
-    :application.set_env(:opencensus, :reporter, {PidAttributesReporter, self()})
+    :application.set_env(:opencensus, :reporters, [{PidAttributesReporter, self()}])
 
     :application.ensure_all_started(:opencensus)
     :application.ensure_all_started(:opencensus_elixir)
