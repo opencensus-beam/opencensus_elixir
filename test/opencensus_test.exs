@@ -29,8 +29,19 @@ defmodule OpencensusTest do
     :application.ensure_all_started(:opencensus)
     :application.ensure_all_started(:opencensus_elixir)
 
+    assert Logger.metadata() == []
+    assert :ocp.current_span_ctx() == :undefined
+
     with_child_span "child_span" do
       :do_something
+
+      assert :ocp.current_span_ctx() != :undefined
+
+      assert Logger.metadata() |> Keyword.keys() |> Enum.sort() == [
+               :span_id,
+               :trace_id,
+               :trace_options
+             ]
     end
 
     assert_receive {:attributes, %{}}, 1_000

@@ -23,12 +23,14 @@ defmodule Opencensus.Trace do
         })
 
       _ = :ocp.with_span_ctx(new_span_ctx)
+      Opencensus.Logger.set_logger_metadata()
 
       try do
         unquote(block)
       after
         _ = :oc_trace.finish_span(new_span_ctx)
         _ = :ocp.with_span_ctx(parent_span_ctx)
+        Opencensus.Logger.set_logger_metadata()
       end
     end
   end
