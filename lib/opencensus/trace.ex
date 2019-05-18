@@ -1,5 +1,50 @@
 defmodule Opencensus.Trace do
-  @doc "Wraps the given block in a tracing child span with the given label/name and optional attributes"
+  @moduledoc """
+  Macros to help Elixir programmers use OpenCensus tracing.
+  """
+
+  @doc """
+  Wrap the given block in a child span with the given label/name and optional attributes.
+
+  Sets `Logger.metadata/0` with `Opencensus.Logger.set_logger_metadata/0` after changing the span
+  context tracked in the process dictionary.
+
+  No attributes:
+
+  ```elixir
+  with_child_span "child_span" do
+    :do_something
+  end
+
+  with_child_span "child_span", %{} do
+    :do_something
+  end
+  ```
+
+  Custom attributes:
+
+  ```elixir
+  with_child_span "child_span", [:module, :function, %{"custom_id" => "xxx"}] do
+    :do_something
+  end
+  ```
+
+  Automatic insertion of the `module`, `file`, `line`, or `function`:
+
+    ```elixir
+  with_child_span "child_span", [:module, :function, %{}] do
+    :do_something
+  end
+  ```
+
+  Collapsing multiple attribute maps (last wins):
+
+    ```elixir
+  with_child_span "child_span", [:function, %{"a" => "b", "c" => "d"}, %{"c" => "e"}] do
+    :do_something
+  end
+  ```
+  """
   defmacro with_child_span(label, attributes \\ quote(do: %{}), do: block) do
     line = __CALLER__.line
     module = __CALLER__.module

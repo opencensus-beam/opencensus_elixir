@@ -94,5 +94,17 @@ defmodule OpencensusTest do
                       :line => _
                     }},
                    1_000
+
+    with_child_span "child_span", [:function, %{"a" => "b", "c" => "d"}, %{"c" => "e"}] do
+      :do_something
+    end
+
+    assert_receive {:attributes,
+                    %{
+                      :function => "test verify attributes/1",
+                      "a" => "b",
+                      "c" => "e"
+                    }},
+                   1_000
   end
 end
