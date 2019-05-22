@@ -22,13 +22,13 @@ defmodule Opencensus.Trace do
           :attributes => unquote(computed_attributes)
         })
 
-      :ocp.with_span_ctx(new_span_ctx)
+      _ = :ocp.with_span_ctx(new_span_ctx)
 
       try do
         unquote(block)
       after
-        :oc_trace.finish_span(new_span_ctx)
-        :ocp.with_span_ctx(parent_span_ctx)
+        _ = :oc_trace.finish_span(new_span_ctx)
+        _ = :ocp.with_span_ctx(parent_span_ctx)
       end
     end
   end
