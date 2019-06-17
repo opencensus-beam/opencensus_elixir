@@ -19,13 +19,15 @@ defmodule Opencensus.Logger do
 
   We'll be able to deprecate these functions when Elixir unifies `:logger` and `Logger` metadata
   in 1.10 or whichever release [first requires Erlang 21 or better][6611]. To check whether that
-  has already happened:
+  has already happened, try this at the `iex` prompt:
 
   ```elixir
   :ocp.with_child_span("traced")
   :logger.get_process_metadata()
   Logger.metadata(()
   ```
+
+  If the metadata output from the second and third lines match, we can start deprecating.
 
   [6611]: https://github.com/elixir-lang/elixir/issues/6611
   [MAY]: https://tools.ietf.org/html/rfc2119#section-5
