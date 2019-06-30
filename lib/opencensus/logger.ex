@@ -34,15 +34,10 @@ defmodule Opencensus.Logger do
   [SHOULD]: https://tools.ietf.org/html/rfc2119#section-3
   """
 
-  require Record
-
-  Record.defrecordp(
-    :ctx,
-    Record.extract(:span_ctx, from_lib: "opencensus/include/opencensus.hrl")
-  )
+  alias Opencensus.SpanContext
 
   @doc "Sets the Logger metadata according to the current span context."
-  def set_logger_metadata(), do: set_logger_metadata(:ocp.current_span_ctx())
+  def set_logger_metadata, do: set_logger_metadata(:ocp.current_span_ctx())
 
   @doc "Sets the Logger metadata according to a supplied span context."
   @spec set_logger_metadata(:opencensus.span_ctx() | :undefined) :: :ok
@@ -51,10 +46,12 @@ defmodule Opencensus.Logger do
   def set_logger_metadata(:undefined), do: set_logger_metadata(nil, nil, nil)
 
   def set_logger_metadata(span_ctx) do
+    context = SpanContext.from(span_ctx)
+
     set_logger_metadata(
-      List.to_string(:io_lib.format("~32.16.0b", [ctx(span_ctx, :trace_id)])),
-      List.to_string(:io_lib.format("~16.16.0b", [ctx(span_ctx, :span_id)])),
-      ctx(span_ctx, :trace_options)
+      SpanContext.hex_trace_id(context.trace_id),
+      SpanContext.hex_span_id(context.span_id),
+      context.trace_options
     )
   end
 
