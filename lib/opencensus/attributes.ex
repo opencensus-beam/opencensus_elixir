@@ -10,23 +10,11 @@ defmodule Opencensus.Attributes do
   * `bool_value`
   * `double_value`
 
-  Some destinations are even stricter, e.g. Datadog. TODO: cite.
+  Some destinations are even stricter, e.g. [Datadog].
 
-  Despite its type declarations, `:ocp.put_attribute/2` in 0.9.1 is even stricter:
+  [Datadog]: https://github.com/DataDog/documentation/blob/0564879/content/en/api/tracing/send_trace.md
 
-      iex> :ocp.with_child_span("name")
-      iex> :ocp.put_attribute("double", 1.0)
-      {:error, :invalid_attribute}
-
-  ... but none of the others restrict attribute values, including:
-
-  * `:oc_span.put_attribute/3`,
-  * `:oc_span.put_attributes/2`,
-  * `:oc_trace.put_attribute/3`,
-  * `:oc_trace.put_attributes/2`,
-  * `:ocp.put_attributes/1`
-
-  Treating the protocol definition as authoritative, the functions in this module:
+  The functions in this module:
 
   * Flatten map values as described below
   * Convert atom keys and values to strings
