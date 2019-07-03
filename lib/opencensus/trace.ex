@@ -76,7 +76,7 @@ defmodule Opencensus.Trace do
   @doc """
   Drop-in replacement for `Task.async/1` that propagates the process' span context.
 
-  Does NOT start a new span for what's inside. Consider `with_child_context/3`.
+  Does NOT start a new span for what's inside. Consider `with_child_span/3`.
   """
   @spec async((() -> any())) :: Task.t()
   def async(fun) when is_function(fun, 0) do
@@ -86,7 +86,7 @@ defmodule Opencensus.Trace do
   @doc """
   Drop-in replacement for `Task.async/3` that propagates the process' span context.
 
-  Does NOT start a new span for what's inside. Consider `with_child_context/3`.
+  Does NOT start a new span for what's inside. Consider `with_child_span/3`.
   """
   @spec async(module(), atom(), [term()]) :: Task.t()
   def async(module, function_name, args)
