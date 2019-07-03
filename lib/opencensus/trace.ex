@@ -132,4 +132,38 @@ defmodule Opencensus.Trace do
 
   defp format_function(nil), do: nil
   defp format_function({name, arity}), do: "#{name}/#{arity}"
+
+  @doc """
+  Drop-in replacement for `Task.async/1` that propagates the process' span context.
+
+  Does NOT start a new span for what's inside. Consider `with_child_span/3`.
+  """
+  @spec async((() -> any())) :: Task.t()
+  def async(fun) when is_function(fun, 0) do
+    async(:erlang, :apply, [fun, []])
+  end
+
+  @doc """
+  Drop-in replacement for `Task.async/3` that propagates the process' span context.
+
+  Does NOT start a new span for what's inside. Consider `with_child_span/3`.
+  """
+  @spec async(module(), atom(), [term()]) :: Task.t()
+  def async(module, function_name, args)
+      when is_atom(module) and is_atom(function_name) and is_list(args) do
+    original_span_ctx = :ocp.current_span_ctx()
+
+    wrapper = fn ->
+      :ocp.with_span_ctx(original_span_ctx)
+      apply(module, function_name, args)
+    end
+
+    Task.async(wrapper)
+  end
+
+  @doc """
+  Drop-in replacement for `Task.await/2`.
+  """
+  @spec await(Task.t(), :infinity | pos_integer()) :: term()
+  defdelegate await(task, timeout \\ 5000), to: Task
 end

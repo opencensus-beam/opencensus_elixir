@@ -1,33 +1,14 @@
-defmodule Span do
-  require Record
-  Record.defrecord(:span, Record.extract(:span, from_lib: "opencensus/include/opencensus.hrl"))
-end
-
-defmodule PidAttributesReporter do
-  import Span
-
-  def init(pid) do
-    pid
-  end
-
-  def report(spans, pid) do
-    Enum.each(spans, fn span ->
-      send(pid, {:attributes, span(span, :attributes)})
-    end)
-  end
-end
-
 defmodule OpencensusTest do
   use ExUnit.Case
+
+  import Opencensus.TestSupport.SpanCaptureReporter
   import Opencensus.Trace
 
-  test "verify attributes", _state do
-    :application.load(:opencensus)
-    :application.set_env(:opencensus, :send_interval_ms, 1)
-    :application.set_env(:opencensus, :reporters, [{PidAttributesReporter, self()}])
+  alias Opencensus.Span
 
-    :application.ensure_all_started(:opencensus)
-    :application.ensure_all_started(:opencensus_elixir)
+  test "verify attributes", _state do
+    attach()
+    on_exit(make_ref(), &detach/0)
 
     assert Logger.metadata() == []
     assert :ocp.current_span_ctx() == :undefined
@@ -44,25 +25,25 @@ defmodule OpencensusTest do
              ]
     end
 
-    assert_receive {:attributes, %{}}, 1_000
+    assert [%Span{attributes: %{}}] = collect()
 
     with_child_span "child_span", %{"attr-1" => "value-1"} do
       :do_something
     end
 
-    assert_receive {:attributes, %{"attr-1" => "value-1"}}, 1_000
+    assert [%Span{attributes: %{"attr-1" => "value-1"}}] = collect()
 
     with_child_span "child_span", [:module, %{"attr-1" => "value-1"}] do
       :do_something
     end
 
-    assert_receive {:attributes, %{"attr-1" => "value-1", :module => OpencensusTest}}, 1_000
+    assert [%Span{attributes: %{"attr-1" => "value-1", module: OpencensusTest}}] = collect()
 
     with_child_span "child_span", [%{"attr-1" => "value-1"}, %{"attr-2" => "value-2"}] do
       :do_something
     end
 
-    assert_receive {:attributes, %{"attr-1" => "value-1", "attr-2" => "value-2"}}, 1_000
+    assert [%Span{attributes: %{"attr-1" => "value-1", "attr-2" => "value-2"}}] = collect()
 
     custom_attrs = %{"attr-1" => "value-1"}
 
@@ -70,7 +51,7 @@ defmodule OpencensusTest do
       :do_something
     end
 
-    assert_receive {:attributes, %{"attr-1" => "value-1", :module => OpencensusTest}}, 1_000
+    assert [%Span{attributes: %{"attr-1" => "value-1", module: OpencensusTest}}] = collect()
 
     custom_attrs1 = %{"attr-1" => "value-1"}
     custom_attrs2 = %{"attr-2" => "value-2"}
@@ -85,26 +66,32 @@ defmodule OpencensusTest do
       :do_something
     end
 
-    assert_receive {:attributes,
-                    %{
-                      "attr" => "value",
-                      "attr-1" => "value-1",
-                      "attr-2" => "value-2",
-                      :module => OpencensusTest,
-                      :line => _
-                    }},
-                   1_000
+    assert [
+             %Span{
+               attributes: %{
+                 "attr" => "value",
+                 "attr-1" => "value-1",
+                 "attr-2" => "value-2",
+                 line: line,
+                 module: OpencensusTest
+               }
+             }
+           ] = collect()
+
+    assert is_integer(line)
 
     with_child_span "child_span", [:function, %{"a" => "b", "c" => "d"}, %{"c" => "e"}] do
       :do_something
     end
 
-    assert_receive {:attributes,
-                    %{
-                      :function => "test verify attributes/1",
-                      "a" => "b",
-                      "c" => "e"
-                    }},
-                   1_000
+    assert [
+             %Span{
+               attributes: %{
+                 "a" => "b",
+                 "c" => "e",
+                 function: "test verify attributes/1"
+               }
+             }
+           ] = collect()
   end
 end
