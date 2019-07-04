@@ -8,6 +8,7 @@ defmodule OpencensusElixir.MixProject do
       elixir: "~> 1.5",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      dialyzer: dialyzer(),
       test_coverage: [tool: ExCoveralls],
       aliases: aliases(),
       description: description(),
@@ -16,9 +17,11 @@ defmodule OpencensusElixir.MixProject do
         coveralls: :test,
         "coveralls.html": :test,
         "coveralls.json": :test,
+        credo: :test,
         docs: :docs,
         "inchci.add": :docs,
-        "inch.report": :docs
+        "inch.report": :docs,
+        "test.watch": :test
       ]
     ]
   end
@@ -40,9 +43,21 @@ defmodule OpencensusElixir.MixProject do
       {:inch_ex, "~> 1.0", only: [:docs]},
 
       # Testing
-      {:excoveralls, "~> 0.10.3", only: [:test]},
+      {:credo, "~> 1.1.0", only: [:test]},
       {:dialyxir, ">= 0.0.0", runtime: false, only: [:dev, :test]},
-      {:junit_formatter, ">= 0.0.0", only: [:test]}
+      {:excoveralls, "~> 0.10.3", only: [:test]},
+      {:junit_formatter, ">= 0.0.0", only: [:test]},
+      {:mix_test_watch, "~> 0.8", runtime: false, only: [:test]},
+      {:telemetry, "~> 0.4"}
+    ]
+  end
+
+  defp dialyzer() do
+    [
+      ignore_warnings: "dialyzer.ignore-warnings",
+      list_unused_filters: true,
+      plt_add_apps: [],
+      plt_add_deps: [:app_tree]
     ]
   end
 

@@ -7,4 +7,6 @@ ExUnit.configure(
     end
 )
 
+:application.ensure_all_started(:opencensus)
+:application.ensure_all_started(:telemetry)
 ExUnit.start()

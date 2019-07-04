@@ -1,5 +1,5 @@
 defmodule Opencensus.LoggerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   describe "set_logger_metadata/1" do
     test "can set trace metadata" do
