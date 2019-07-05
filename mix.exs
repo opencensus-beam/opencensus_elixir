@@ -4,7 +4,7 @@ defmodule OpencensusElixir.MixProject do
   def project do
     [
       app: :opencensus_elixir,
-      version: "0.3.0",
+      version: "0.4.0",
       elixir: "~> 1.5",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
