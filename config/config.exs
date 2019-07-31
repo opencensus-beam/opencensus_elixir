@@ -9,5 +9,5 @@ if Mix.env() == :test do
 
   config :opencensus,
     reporters: [{Opencensus.TestSupport.SpanCaptureReporter, []}],
-    send_interval_ms: 0
+    send_interval_ms: 100
 end
