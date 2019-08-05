@@ -45,6 +45,9 @@ defmodule Opencensus.Trace do
   end
   ```
   """
+
+  @behaviour Opencensus.ProcessContext
+
   defmacro with_child_span(label, attributes \\ quote(do: %{}), do: block) do
     line = __CALLER__.line
     module = __CALLER__.module
@@ -60,21 +63,22 @@ defmodule Opencensus.Trace do
       })
 
     quote do
-      parent_span_ctx = :ocp.current_span_ctx()
+      previous_span_ctx = Opencensus.Trace.get_span_ctx()
+      parent_span_ctx = Opencensus.Trace.effective_span_ctx()
 
       new_span_ctx =
         :oc_trace.start_span(unquote(label), parent_span_ctx, %{
           :attributes => unquote(computed_attributes)
         })
 
-      _ = :ocp.with_span_ctx(new_span_ctx)
+      _ = Opencensus.Trace.put_span_ctx(new_span_ctx)
       Opencensus.Logger.set_logger_metadata()
 
       try do
         unquote(block)
       after
         _ = :oc_trace.finish_span(new_span_ctx)
-        _ = :ocp.with_span_ctx(parent_span_ctx)
+        _ = Opencensus.Trace.put_span_ctx(previous_span_ctx)
         Opencensus.Logger.set_logger_metadata()
       end
     end
@@ -166,4 +170,62 @@ defmodule Opencensus.Trace do
   """
   @spec await(Task.t(), :infinity | pos_integer()) :: term()
   defdelegate await(task, timeout \\ 5000), to: Task
+
+  @doc """
+  Put the current span context.
+
+  Replaces `:ocp.with_span_ctx/1`.
+
+  Callers [MAY] pass values from `get_span_ctx/0` to `put_span_ctx/1`.
+
+  Callers [MUST NOT] pass a value obtained via `recover_span_ctx/0` to `put_span_ctx/1`.
+
+  Uses the configured `process_context`. See also: `Opencensus.ProcessContext`.
+
+  [MAY]: https://tools.ietf.org/html/rfc2119#section-5
+  """
+  @impl Opencensus.ProcessContext
+  def put_span_ctx(span_ctx), do: process_context() |> apply(:put_span_ctx, [span_ctx])
+
+  @doc """
+  Get the current span context.
+
+  Replaces `:ocp.current_span_ctx/0`, along with `recover_span_ctx/0`.
+
+  Callers [MAY] pass values from `get_span_ctx/0` to `put_span_ctx/1`.
+
+  Uses the configured `process_context`. See also: `Opencensus.ProcessContext`.
+
+  [MAY]: https://tools.ietf.org/html/rfc2119#section-5
+  """
+  @impl Opencensus.ProcessContext
+  def get_span_ctx, do: process_context() |> apply(:get_span_ctx, [])
+
+  @doc """
+  Recover the current span context by less reliable means.
+
+  Replaces `:ocp.current_span_ctx/0`, along with `get_span_ctx/0`.
+
+  Callers [MUST NOT] pass a value obtained via `recover_span_ctx/0` to `put_span_ctx/1`.
+
+  Uses the configured `process_context`. See also: `Opencensus.ProcessContext`.
+  """
+  @impl Opencensus.ProcessContext
+  def recover_span_ctx, do: process_context() |> apply(:recover_span_ctx, [])
+
+  @doc false
+  def effective_span_ctx do
+    case get_span_ctx() do
+      :undefined -> recover_span_ctx()
+      span_ctx -> span_ctx
+    end
+  end
+
+  defp process_context do
+    Application.get_env(
+      :opencensus,
+      :process_context,
+      Opencensus.ProcessContext.DefaultImplementation
+    )
+  end
 end

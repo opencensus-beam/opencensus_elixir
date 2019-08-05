@@ -42,7 +42,7 @@ defmodule Opencensus.AsyncTest do
     {inner, outer} =
       Trace.with_child_span "outside" do
         outer = :ocp.current_span_ctx() |> Span.load()
-        Trace.async(M, :f, [outer]) |> Trace.await(10)
+        M |> Trace.async(:f, [outer]) |> Trace.await(10)
       end
 
     assert inner.trace_id == outer.trace_id
