@@ -8,7 +8,11 @@ if Mix.env() == :test do
     report_dir: "reports/exunit"
 
   config :opencensus,
-    process_context: Opencensus.ProcessContext.DefaultImplementation,
+    process_contexts: [
+      Opencensus.Unstable.ProcessContext.SeqTrace,
+      Opencensus.Unstable.ProcessContext.ProcessDictionary,
+      Opencensus.Unstable.ProcessContext.ProcessDictionaryWithRecovery
+    ],
     reporters: [{Opencensus.TestSupport.SpanCaptureReporter, []}],
     send_interval_ms: 100
 end
