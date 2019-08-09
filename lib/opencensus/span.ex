@@ -34,4 +34,10 @@ defmodule Opencensus.Span do
   def load(span_ctx) when is_tuple(span_ctx) do
     span_ctx |> SpanContext.from() |> Map.get(:span_id) |> load()
   end
+
+  @doc false
+  def began_monotonic(record) when Record.is_record(record, :span) do
+    {native_time, _native_offset} = span(record, :start_time)
+    native_time
+  end
 end
