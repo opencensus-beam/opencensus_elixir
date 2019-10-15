@@ -9,4 +9,5 @@ ExUnit.configure(
 
 :application.ensure_all_started(:opencensus)
 :application.ensure_all_started(:telemetry)
+{:ok, _pid} = Opencensus.TestSupport.MetricsCaptureExporter.start_link()
 ExUnit.start()
