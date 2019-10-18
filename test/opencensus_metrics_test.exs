@@ -148,6 +148,22 @@ defmodule Opencensus.MetricsTest do
     end
   end
 
+  describe "create measure more than once" do
+    test "measurements should not be lost" do
+      Metrics.new_measure(:dup, "", :seconds)
+
+      Metrics.aggregate_count("dup_count", :dup, "dup count", [])
+
+      Metrics.record(:dup, 1)
+
+      Metrics.new_measure(:dup, "", :seconds)
+
+      Metrics.record(:dup, 1)
+
+      assert %{data: %{rows: [%{value: 2}]}} = capture_aggregate("dup_count")
+    end
+  end
+
   defp record_measures(measure_name) when is_atom(measure_name) do
     Metrics.record([{measure_name, 10}, {measure_name, 20}], %{t1: "a", t2: "A"})
     Metrics.record(measure_name, %{t1: "b", t2: "B"}, 31)

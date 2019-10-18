@@ -5,7 +5,7 @@
 
 Wraps some [`:opencensus`][:opencensus] capabilities for Elixir users so
 they don't have to [learn them some Erlang][lyse] in order to get
-[OpenCensus] distributed tracing.
+[OpenCensus] distributed tracing and metrics.
 
 [opencensus]: http://opencensus.io
 [:opencensus]: https://hex.pm/packages/opencensus
@@ -25,6 +25,7 @@ end
 ```
 
 ## Usage
+### Tracing
 
 Wrap your code with the
 [`Opencensus.Trace.with_child_span/3`][oce-with_child_span-3] macro to
@@ -37,6 +38,20 @@ def traced_fn(arg) do
   with_child_span "traced" do
     :YOUR_CODE_HERE
   end
+end
+```
+
+### Metrics
+
+Register measures, define aggregations, record measures:
+```elixir
+alias Opencensus.Metrics
+
+def foo do
+  Metrics.new_measure(:latency, "the latency in milliseconds", :milli_seconds)
+  Metrics.aggregate_count("request_count", :latency, "number of requests", [:protocol, :operation])
+  Metrics.aggregate_distribution("latencies_distribution", :latency, "distribution of latencies", [:protocol, :operation], [10, 50, 100, 500])
+  Metrics.record(:latency, %{protocol: :http, operation: :get_cats}, 121.2)
 end
 ```
 
@@ -74,16 +89,22 @@ end
 
 ## Troubleshooting
 
-To see your spans, use the `:oc_reporter_stdout` reporter, either in config:
+To see your spans, use the `:oc_reporter_stdout` reporter. To see your metrics, use the `:oc_stdout_exporter` exporter.
+You can set it either in config:
 
 ```elixir
-config :opencensus, reporters: [{:oc_reporter_stdout, []}]
+config :opencensus,
+  reporters: [{:oc_reporter_stdout, []}],
+  stat: [
+    exporters: [{:oc_stdout_exporter, []}]
+  ]
 ```
 
 ... or at the `iex` prompt:
 
 ```plain
 iex> :oc_reporter.register(:oc_reporter_stdout)
+iex> :oc_stat_exporter.register(:oc_stdout_exporter)
 ```
 
 [oce-with_child_span-3]: https://hexdocs.pm/opencensus_elixir/Opencensus.Trace.html#with_child_span/3
