@@ -4,8 +4,8 @@ defmodule Opencensus.Metrics do
 
   First, a measure must be created:
   ```elixir
-  Metrics.new_measure(:name, "description", :unit)
-  Metrics.new_measure(:another, "", :unit)
+  Metrics.new(:name, "description", :unit)
+  Metrics.new(:another, "", :unit)
   ```
 
   Next step is to choose aggregations to be exported:
@@ -27,7 +27,7 @@ defmodule Opencensus.Metrics do
   ```
   """
 
-  def new_measure(name, description, unit) do
+  def new(name, description, unit) do
     :oc_stat_measure.new(name, description, unit)
   end
 

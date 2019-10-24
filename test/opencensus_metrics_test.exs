@@ -8,7 +8,7 @@ defmodule Opencensus.MetricsTest do
     test "counter" do
       measure_name = :measure1
       tag_names = [:t1, :t2]
-      Metrics.new_measure(measure_name, "A test measure", :milli_second)
+      Metrics.new(measure_name, "A test measure", :milli_second)
 
       Metrics.aggregate_count(
         :test_count,
@@ -37,7 +37,7 @@ defmodule Opencensus.MetricsTest do
 
     test "gauge" do
       measure_name = :measure2
-      Metrics.new_measure(measure_name, "A test measure", :milli_seconds)
+      Metrics.new(measure_name, "A test measure", :milli_seconds)
 
       Metrics.aggregate_gauge(:test_gauge, measure_name, "A gauge", [:t1, :t2])
 
@@ -61,7 +61,7 @@ defmodule Opencensus.MetricsTest do
 
     test "sum" do
       measure_name = :measure3
-      Metrics.new_measure(measure_name, "A test measure", :milli_seconds)
+      Metrics.new(measure_name, "A test measure", :milli_seconds)
       Metrics.aggregate_sum(:test_sum, measure_name, "A sum", [:t1, :t2])
 
       record_measures(measure_name)
@@ -84,7 +84,7 @@ defmodule Opencensus.MetricsTest do
 
     test "distribution" do
       measure_name = :measure4
-      Metrics.new_measure(measure_name, "A test measure", :milli_seconds)
+      Metrics.new(measure_name, "A test measure", :milli_seconds)
 
       Metrics.aggregate_distribution(
         :test_distribution,
@@ -132,7 +132,7 @@ defmodule Opencensus.MetricsTest do
   describe "using tags from process dictionary" do
     test "tag values are taken from process dictionary" do
       :ocp.with_tags(%{tag: "value"})
-      Metrics.new_measure(:measure10, "measure", :bytes)
+      Metrics.new(:measure10, "measure", :bytes)
 
       Metrics.aggregate_count(
         :measure10_count,
@@ -150,13 +150,13 @@ defmodule Opencensus.MetricsTest do
 
   describe "create measure more than once" do
     test "measurements should not be lost" do
-      Metrics.new_measure(:dup, "", :seconds)
+      Metrics.new(:dup, "", :seconds)
 
       Metrics.aggregate_count("dup_count", :dup, "dup count", [])
 
       Metrics.record(:dup, 1)
 
-      Metrics.new_measure(:dup, "", :seconds)
+      Metrics.new(:dup, "", :seconds)
 
       Metrics.record(:dup, 1)
 

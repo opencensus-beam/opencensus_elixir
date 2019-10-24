@@ -48,7 +48,7 @@ Register measures, define aggregations, record measures:
 alias Opencensus.Metrics
 
 def foo do
-  Metrics.new_measure(:latency, "the latency in milliseconds", :milli_seconds)
+  Metrics.new(:latency, "the latency in milliseconds", :milli_seconds)
   Metrics.aggregate_count("request_count", :latency, "number of requests", [:protocol, :operation])
   Metrics.aggregate_distribution("latencies_distribution", :latency, "distribution of latencies", [:protocol, :operation], [10, 50, 100, 500])
   Metrics.record(:latency, %{protocol: :http, operation: :get_cats}, 121.2)
