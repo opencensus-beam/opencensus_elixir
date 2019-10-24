@@ -27,9 +27,7 @@ defmodule Opencensus.Metrics do
   ```
   """
 
-  def new(name, description, unit) do
-    :oc_stat_measure.new(name, description, unit)
-  end
+  defdelegate new(name, description, unit), to: :oc_stat_measure
 
   @doc """
   count of how many times `measure` was recorded will be exported
