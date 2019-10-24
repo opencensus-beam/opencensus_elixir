@@ -51,7 +51,7 @@ def foo do
   Metrics.new(:latency, "the latency in milliseconds", :milli_seconds)
   Metrics.aggregate_count("request_count", :latency, "number of requests", [:protocol, :operation])
   Metrics.aggregate_distribution("latencies_distribution", :latency, "distribution of latencies", [:protocol, :operation], [10, 50, 100, 500])
-  Metrics.record(:latency, %{protocol: :http, operation: :get_cats}, 121.2)
+  Metrics.record(:latency, 121.2, %{protocol: :http, operation: :get_cats})
 end
 ```
 

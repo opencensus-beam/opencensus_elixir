@@ -166,9 +166,9 @@ defmodule Opencensus.MetricsTest do
 
   defp record_measures(measure_name) when is_atom(measure_name) do
     Metrics.record([{measure_name, 10}, {measure_name, 20}], %{t1: "a", t2: "A"})
-    Metrics.record(measure_name, %{t1: "b", t2: "B"}, 31)
-    Metrics.record(measure_name, %{t1: "b", t2: "B"}, 32)
-    Metrics.record(measure_name, %{t1: "b", t2: "B"}, 51)
+    Metrics.record(measure_name, 31, %{t1: "b", t2: "B"})
+    Metrics.record(measure_name, 32, %{t1: "b", t2: "B"})
+    Metrics.record(measure_name, 51, %{t1: "b", t2: "B"})
   end
 
   defp capture_aggregate(name) do

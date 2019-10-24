@@ -18,7 +18,7 @@ defmodule Opencensus.Metrics do
 
   After aggregations are decided, measures may be recorded by explicitly providing tags:
   ```elixir
-  Metrics.record(:name, %{tag1: "v1", tag2: "v2"}, 3)
+  Metrics.record(:name}, 3, %{tag1: "v1", tag2: "v2"})
   Metrics.record([another: 1, name: 100], %{tag1: "v1", tag2: "v2})
   ```
   or using tag values that are present in process dictionary:
@@ -66,7 +66,7 @@ defmodule Opencensus.Metrics do
   @doc """
   records single measure
   """
-  def record(measure, %{} = tags, value) when is_number(value) do
+  def record(measure, value, %{} = tags) when is_number(value) do
     :oc_stat.record(tags, measure, value)
   end
 
