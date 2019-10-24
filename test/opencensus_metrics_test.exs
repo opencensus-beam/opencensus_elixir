@@ -2,7 +2,7 @@ defmodule Opencensus.MetricsTest do
   alias Opencensus.Metrics
   alias Opencensus.TestSupport.MetricsCaptureExporter, as: Capture
 
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   describe "Aggregate measurements" do
     test "counter" do
