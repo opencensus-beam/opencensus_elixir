@@ -8,6 +8,14 @@ if Mix.env() == :test do
     report_dir: "reports/exunit"
 
   config :opencensus,
-    reporters: [{Opencensus.TestSupport.SpanCaptureReporter, []}],
-    send_interval_ms: 100
+    reporters: [
+      {Opencensus.TestSupport.SpanCaptureReporter, []}
+    ],
+    send_interval_ms: 100,
+    stat: [
+      export_interval: 100,
+      exporters: [
+        {Opencensus.TestSupport.MetricsCaptureExporter, []}
+      ]
+    ]
 end
