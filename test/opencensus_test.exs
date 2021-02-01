@@ -11,12 +11,12 @@ defmodule OpencensusTest do
     on_exit(make_ref(), &detach/0)
 
     assert Logger.metadata() == []
-    assert :ocp.current_span_ctx() == :undefined
+    assert Opencensus.Unstable.current_span_ctx() == :undefined
 
     with_child_span "child_span" do
       :do_something
 
-      assert :ocp.current_span_ctx() != :undefined
+      assert Opencensus.Unstable.current_span_ctx() != :undefined
 
       assert Logger.metadata() |> Keyword.keys() |> Enum.sort() == [
                :span_id,
