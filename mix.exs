@@ -48,7 +48,7 @@ defmodule OpencensusElixir.MixProject do
       {:excoveralls, "~> 0.10.3", only: [:test]},
       {:junit_formatter, ">= 0.0.0", only: [:test]},
       {:mix_test_watch, "~> 0.8", runtime: false, only: [:test]},
-      {:telemetry, "~> 0.4"}
+      {:telemetry, "~> 0.4 or ~> 1.0"}
     ]
   end
 
