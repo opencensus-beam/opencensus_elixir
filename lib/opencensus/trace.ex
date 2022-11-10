@@ -45,6 +45,7 @@ defmodule Opencensus.Trace do
   end
   ```
   """
+
   defmacro with_child_span(label, attributes \\ quote(do: %{}), do: block) do
     line = __CALLER__.line
     module = __CALLER__.module
@@ -60,21 +61,23 @@ defmodule Opencensus.Trace do
       })
 
     quote do
-      parent_span_ctx = :ocp.current_span_ctx()
+      previous_span_ctx = Opencensus.Unstable.current_span_ctx()
+      parent_span_ctx = Opencensus.Unstable.recover_span_ctx()
 
       new_span_ctx =
         :oc_trace.start_span(unquote(label), parent_span_ctx, %{
           :attributes => unquote(computed_attributes)
         })
 
-      _ = :ocp.with_span_ctx(new_span_ctx)
+      _ = Opencensus.Unstable.with_span_ctx(new_span_ctx)
+      ^new_span_ctx = Opencensus.Unstable.current_span_ctx()
       Opencensus.Logger.set_logger_metadata()
 
       try do
         unquote(block)
       after
         _ = :oc_trace.finish_span(new_span_ctx)
-        _ = :ocp.with_span_ctx(parent_span_ctx)
+        _ = Opencensus.Unstable.with_span_ctx(previous_span_ctx)
         Opencensus.Logger.set_logger_metadata()
       end
     end
